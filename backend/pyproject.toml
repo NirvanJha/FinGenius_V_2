@@ -1,0 +1,14 @@
+[project]
+name = "ai-stock-analysis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.124.4",
+    "langchain[openai]>=0.3.27",
+    "langgraph>=0.6.11",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.38.0",
+    "yfinance>=0.2.66",
+]

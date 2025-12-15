@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@crayonai/react-ui": "^0.9.7",
+    "@thesysai/genui-sdk": "^0.7.7"
+  }
+}

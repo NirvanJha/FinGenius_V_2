@@ -1,0 +1,95 @@
+export const getRadiusArray = (variant, radius, orientation, isFirst, isLast, isNegative) => {
+    if (variant === "grouped") {
+        if (orientation === "vertical") {
+            if (isNegative) {
+                return [0, 0, radius, radius]; // bottom-right, bottom-left for negative bars
+            }
+            return [radius, radius, 0, 0]; // top-left, top-right for positive bars
+        }
+        else {
+            // horizontal
+            if (isNegative) {
+                return [radius, 0, 0, radius]; // top-left, bottom-left for negative bars
+            }
+            return [0, radius, radius, 0]; // top-right, bottom-right for positive bars
+        }
+    }
+    else if (variant === "stacked") {
+        // For single-item stacks, round the end of the bar.
+        if (isFirst && isLast) {
+            if (orientation === "vertical") {
+                return isNegative ? [0, 0, radius, radius] : [radius, radius, 0, 0];
+            }
+            else {
+                // horizontal
+                return isNegative ? [radius, 0, 0, radius] : [0, radius, radius, 0];
+            }
+        }
+        // For multi-item stacks, only round the last bar in the stack.
+        if (orientation === "vertical") {
+            if (isLast) {
+                // Top of the stack for vertical bar
+                if (isNegative) {
+                    return [0, 0, radius, radius];
+                }
+                return [radius, radius, 0, 0];
+            }
+        }
+        else {
+            // horizontal
+            if (isLast) {
+                // Right of the stack for horizontal bar
+                if (isNegative) {
+                    return [radius, 0, 0, radius];
+                }
+                return [0, radius, radius, 0];
+            }
+        }
+        // First and middle bars of the stack have no rounding.
+        return [0, 0, 0, 0];
+    }
+    // Default or other variants
+    return [radius, radius, radius, radius];
+};
+export const findNearestSnapPosition = (snapPositions, currentScroll, direction) => {
+    // Find current position index
+    let currentIndex = 0;
+    for (let i = 0; i < snapPositions.length; i++) {
+        const snapPosition = snapPositions[i];
+        if (currentScroll >= snapPosition) {
+            currentIndex = i;
+        }
+        else {
+            break;
+        }
+    }
+    if (direction === "up" || direction === "left") {
+        // Go to previous snap position
+        return Math.max(0, currentIndex - 1);
+    }
+    else {
+        // Go to next snap position
+        return Math.min(snapPositions.length - 1, currentIndex + 1);
+    }
+};
+export function getBarStackInfo(variant, value, dataKey, payload, dataKeys) {
+    const isNegative = Array.isArray(value) ? value[0] <= 0 && value[1] < 0 : value < 0;
+    if (variant !== "stacked") {
+        return { isNegative };
+    }
+    const stackedKeys = dataKeys.filter((k) => typeof payload[k] === "number");
+    const positiveKeys = stackedKeys.filter((k) => payload[k] >= 0);
+    const negativeKeys = stackedKeys.filter((k) => payload[k] < 0);
+    const hasNegativeValueInStack = negativeKeys.length > 0;
+    const keys = isNegative ? negativeKeys : positiveKeys;
+    const currentIndex = keys.indexOf(dataKey);
+    const isFirstInStack = currentIndex === 0;
+    const isLastInStack = currentIndex === keys.length - 1;
+    return {
+        isNegative,
+        isFirstInStack,
+        isLastInStack,
+        hasNegativeValueInStack,
+    };
+}
+//# sourceMappingURL=BarChartsUtils.js.map
